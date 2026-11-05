@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sultanlar Ligi Maç Tahmini</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: a match scoreboard on top, then the six possible results split at the net. */
+:root {
+  color-scheme: light;
+  --plane: #f9f9f7;
+  --surface: #fcfcfb;
+  --ink: #0b0b0b;
+  --ink-2: #52514e;
+  --muted: #6f6d68;
+  --line: #e1e0d9;
+  --axis: #c3c2b7;
+  --home: #2a78d6;
+  --away: #eb6834;
+  --warning: #fab219;
+  --display: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
+  --body: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --plane: #0d0d0d;
+    --surface: #1a1a19;
+    --ink: #f0efec;
+    --ink-2: #c3c2b7;
+    --muted: #a09e96;
+    --line: #2c2c2a;
+    --axis: #383835;
+    --home: #3987e5;
+    --away: #d95926;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --plane: #0d0d0d;
+  --surface: #1a1a19;
+  --ink: #f0efec;
+  --ink-2: #c3c2b7;
+  --muted: #a09e96;
+  --line: #2c2c2a;
+  --axis: #383835;
+  --home: #3987e5;
+  --away: #d95926;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--plane);
+  color: var(--ink);
+  font: 400 16px/1.5 var(--body);
+}
+main {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 32px 20px 48px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 20px;
+}
+h1, h2 { font-family: var(--display); font-weight: 600; margin: 0; text-wrap: balance; }
+h1 { font-size: 38px; line-height: 1.05; }
+h2 { font-size: 24px; line-height: 1.15; }
+p { margin: 0; }
+.sub { color: var(--ink-2); }
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 20px;
+}
+
+/* Header and language switch */
+.top { display: flex; flex-wrap: wrap; gap: 12px 24px; justify-content: space-between; align-items: flex-start; }
+.top > div:first-child { flex: 1 1 320px; min-width: 0; }
+.lang { display: flex; gap: 4px; }
+.lang button { min-height: 36px; padding: 6px 12px; font-size: 14px; }
+.lang button[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--surface); }
+
+/* Team pickers */
+.controls {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 12px;
+  align-items: end;
+}
+.field { display: grid; gap: 4px; min-width: 0; }
+.field label { font-size: 14px; font-weight: 600; color: var(--ink-2); }
+select, button {
+  font: 500 16px/1.2 var(--body);
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--axis);
+  border-radius: 6px;
+  min-height: 44px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+select { width: 100%; }
+button:hover, select:hover { border-color: var(--muted); }
+:is(select, button, input, .slot):focus-visible { outline: 2px solid var(--home); outline-offset: 2px; }
+.neutral { grid-column: 1 / -1; display: flex; gap: 8px; align-items: center; color: var(--ink-2); }
+.neutral input { width: 18px; height: 18px; margin: 0; accent-color: var(--home); }
+
+/* Scoreboard */
+.board { display: grid; gap: 16px; }
+.teams { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: auto auto auto; column-gap: 24px; row-gap: 2px; }
+.team { display: grid; grid-row: span 3; grid-template-rows: subgrid; min-width: 0; }
+.team.right { text-align: right; justify-items: end; }
+.team-name { display: flex; gap: 8px; align-items: baseline; font-weight: 600; font-size: 18px; line-height: 1.25; }
+.team.right .team-name { flex-direction: row-reverse; }
+.dot { flex: none; width: 10px; height: 10px; border-radius: 50%; }
+.dot.home, .swatch.home { background: var(--home); }
+.dot.away, .swatch.away { background: var(--away); }
+.win { font: 700 76px/1 var(--display); align-self: end; }
+.team-meta { color: var(--ink-2); font-size: 14px; }
+.split { display: flex; gap: 2px; height: 28px; }
+.split div {
+  min-width: 0;
+  border-radius: 4px;
+  color: #fff;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 28px;
+  padding: 0 8px;
+  white-space: nowrap;
+}
+.split .home { background: var(--home); }
+.split .away { background: var(--away); text-align: right; }
+
+/* Summary tiles */
+.tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.tile { display: grid; gap: 2px; align-content: start; }
+.tile-label { color: var(--ink-2); font-size: 14px; }
+.tile-value { font: 600 32px/1.1 var(--display); }
+.tile-note { color: var(--ink-2); font-size: 14px; }
+
+/* Lopsided-match warning */
+.caution {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  border-left: 4px solid var(--warning);
+  background: var(--surface);
+  border-radius: 4px;
+  padding: 12px 16px;
+}
+.caution[hidden] { display: none; }
+.caution svg { flex: none; margin-top: 2px; color: var(--warning); }
+
+/* Scoreline chart */
+.results { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 28px; align-items: start; }
+.results-head { grid-column: 1 / -1; display: grid; gap: 2px; }
+.sides { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 14px; color: var(--ink-2); margin-bottom: 8px; }
+.sides > span:last-child { text-align: right; }
+.swatch { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; }
+.chart { display: flex; height: 240px; border-bottom: 1px solid var(--axis); }
+.slot {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 4px;
+  border-radius: 4px 4px 0 0;
+  cursor: default;
+}
+.slot:hover { background: var(--line); }
+.slot-value { font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.bar { width: 24px; border-radius: 4px 4px 0 0; transition: height 200ms ease-out; }
+.bar.home { background: var(--home); }
+.bar.away { background: var(--away); }
+.net { flex: none; width: 2px; margin: 0 6px; background: var(--axis); }
+.labels { display: flex; padding-top: 6px; }
+.labels span {
+  flex: 1 1 0;
+  text-align: center;
+  font-size: 14px;
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+.labels i { flex: none; width: 14px; }
+
+table { width: 100%; border-collapse: collapse; font-size: 15px; }
+th { text-align: left; font-weight: 600; font-size: 14px; color: var(--ink-2); }
+th, td { padding: 7px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+tbody tr:last-child td { border-bottom: 0; }
+
+.tip {
+  position: fixed;
+  z-index: 10;
+  max-width: 240px;
+  background: var(--ink);
+  color: var(--surface);
+  font-size: 14px;
+  line-height: 1.35;
+  padding: 8px 10px;
+  border-radius: 6px;
+  pointer-events: none;
+}
+.tip[hidden] { display: none; }
+
+.notes { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px 28px; color: var(--ink-2); font-size: 15px; }
+.notes h2 { color: var(--ink); font-size: 20px; margin-bottom: 4px; }
+
+@media (max-width: 720px) {
+  .results, .notes { grid-template-columns: 1fr; }
+  .tiles { grid-template-columns: 1fr; }
+  .win { font-size: 60px; }
+}
+@media (max-width: 640px) {
+  .controls { grid-template-columns: 1fr; }
+  #swap { justify-self: start; }
+}
+@media (max-width: 480px) {
+  .teams { column-gap: 12px; }
+  .win { font-size: 46px; }
+  .team-name { font-size: 16px; }
+  .slot-value { font-size: 12px; }
+  .bar { width: 18px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bar { transition: none; }
+}
+</style>
+</head>
+<body>
+<main>
+  <header class="top">
+    <div>
+      <h1 data-i18n="title">Sultanlar Ligi Maç Tahmini</h1>
+      <p class="sub" data-i18n="intro">Maçı 100.000 kez simüle etmek için iki takım seçin. Reytingler 2025-26 sezonu sonuna aittir.</p>
+    </div>
+    <div class="lang" role="group" data-i18n-aria="language" aria-label="Dil">
+      <button type="button" data-lang="tr" lang="tr" aria-pressed="true">Türkçe</button>
+      <button type="button" data-lang="en" lang="en" aria-pressed="false">English</button>
+    </div>
+  </header>
+
+  <section class="panel controls" data-i18n-aria="chooseMatch" aria-label="Maçı seçin">
+    <div class="field">
+      <label for="home" data-i18n="homeTeam">Ev sahibi takım</label>
+      <select id="home"></select>
+    </div>
+    <button id="swap" type="button" data-i18n="swap">Takımları değiştir</button>
+    <div class="field">
+      <label for="away" data-i18n="awayTeam">Deplasman takımı</label>
+      <select id="away"></select>
+    </div>
+    <label class="neutral" for="neutral">
+      <input id="neutral" type="checkbox">
+      <span data-i18n="neutral">Tarafsız saha, ev sahibi avantajı yok</span>
+    </label>
+  </section>
+
+  <section class="panel board" data-i18n-aria="winProbability" aria-label="Kazanma olasılığı">
+    <div class="teams">
+      <div class="team">
+        <div class="team-name"><span class="dot home"></span><span id="home-name"></span></div>
+        <div class="win" id="home-win"></div>
+        <div class="team-meta" id="home-meta"></div>
+      </div>
+      <div class="team right">
+        <div class="team-name"><span class="dot away"></span><span id="away-name"></span></div>
+        <div class="win" id="away-win"></div>
+        <div class="team-meta" id="away-meta"></div>
+      </div>
+    </div>
+    <div class="split" id="split" role="img">
+      <div class="home" id="split-home"></div>
+      <div class="away" id="split-away"></div>
+    </div>
+  </section>
+
+  <aside class="caution" id="caution" hidden>
+    <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path fill="currentColor" d="M10 1.5 19.5 18H.5L10 1.5Zm-1 6v5h2v-5H9Zm0 6.5v2h2v-2H9Z"/></svg>
+    <p><strong data-i18n="cautionTitle">Sürpriz sonuç olasılığı burada görünenden yüksek.</strong> <span data-i18n="cautionBody">Model ev sahibine %90'ın üzerinde şans verdiğinde ortalaması %97'ydi ve ev sahibi bu maçların %95'ini kazandı. %10'un altında ortalaması %3'tü ve ev sahibi maçların %8'ini kazandı.</span></p>
+  </aside>
+
+  <section class="tiles" data-i18n-aria="matchSummary" aria-label="Maç özeti">
+    <div class="panel tile">
+      <span class="tile-label" data-i18n="setLabel">Ev sahibinin set kazanma olasılığı</span>
+      <span class="tile-value" id="set-prob"></span>
+      <span class="tile-note" data-i18n="setNote">Herhangi bir sette</span>
+    </div>
+    <div class="panel tile">
+      <span class="tile-label" data-i18n="fifthLabel">Maçın beşinci sete gitme olasılığı</span>
+      <span class="tile-value" id="five-sets"></span>
+      <span class="tile-note" data-i18n="fifthNote">3-2 veya 2-3 biter</span>
+    </div>
+    <div class="panel tile">
+      <span class="tile-label" data-i18n="pointsLabel">Beklenen lig puanı</span>
+      <span class="tile-value" id="league-pts"></span>
+      <span class="tile-note" data-i18n="pointsNote">Önce ev sahibi, sonra deplasman</span>
+    </div>
+  </section>
+
+  <section class="panel results">
+    <div class="results-head">
+      <h2 data-i18n="scoresTitle">Her skorun olasılığı</h2>
+      <p class="sub" data-i18n="scoresNote">Skorlarda önce ev sahibinin setleri yazılır.</p>
+    </div>
+    <div>
+      <div class="sides">
+        <span><i class="swatch home"></i><span id="side-home"></span> <span data-i18n="wins">kazanır</span></span>
+        <span><i class="swatch away"></i><span id="side-away"></span> <span data-i18n="wins">kazanır</span></span>
+      </div>
+      <div class="chart" id="chart"></div>
+      <div class="labels" id="labels"></div>
+    </div>
+    <table>
+      <thead>
+        <tr><th scope="col" data-i18n="score">Skor</th><th scope="col" class="num" data-i18n="chance">Olasılık</th><th scope="col" class="num" data-i18n="leaguePoints">Lig puanı</th></tr>
+      </thead>
+      <tbody id="table"></tbody>
+    </table>
+  </section>
+
+  <section class="panel notes">
+    <div>
+      <h2 data-i18n="howTitle">Nasıl çalışır?</h2>
+      <p data-i18n="howBody">Her takımın Elo reytingi beklenen bir maç skoru verir. Bu skor, her seti kazanma olasılığına çevrilir. Ardından her simülasyonda maç, bir takım 3 sete ulaşana kadar set set oynanır.</p>
+    </div>
+    <div>
+      <h2 data-i18n="limitsTitle">Bilmeniz gerekenler</h2>
+      <p data-i18n="limitsBody">Favori takım, geçmiş 801 maçın %80,5'ini kazandı. Her sette aynı olasılık kullanılır, bu yüzden momentum ve daha kısa olan beşinci set modele dahil değildir. Takımlar 2025-26 sezonunun takımlarıdır ve reytingler 20 Nisan 2026'dan sonraki kadro değişikliklerini hesaba katmaz.</p>
+    </div>
+  </section>
+</main>
+<div class="tip" id="tip" role="tooltip" hidden></div>
+
+<script>
+// Final ratings from run_elo(df) in EloModelV2.ipynb, using its default settings.
+const TEAMS = [
+  { id: "VAK", name: "VakıfBank", elo: 1958.2 },
+  { id: "FEN", name: "Fenerbahçe", elo: 1867.5 },
+  { id: "ECZ", name: "Eczacıbaşı", elo: 1729.3 },
+  { id: "ZER", name: "Zeren Spor", elo: 1677.6 },
+  { id: "GS", name: "Galatasaray", elo: 1627.2 },
+  { id: "GOZ", name: "Göztepe", elo: 1585.2 },
+  { id: "KUZ", name: "Kuzeyboru", elo: 1513.2 },
+  { id: "ARS", name: "Aras Kargo", elo: 1482.1 },
+  { id: "THY", name: "Türk Hava Yolları", elo: 1420.6 },
+  { id: "NIL", name: "Nilüfer Belediyespor", elo: 1413.2 },
+  { id: "BJK", name: "Beşiktaş", elo: 1367.3 },
+  { id: "ILB", name: "İlbank", elo: 1300.4 },
+  { id: "AYD", name: "Aydın Büyükşehir Belediyespor", elo: 1291.7 },
+  { id: "BAH", name: "Bahçelievler Belediyespor", elo: 1052.3 },
+];
+const H = 25, S = 400, N_SIMS = 100000, SEED = 42;
+
+// score is the S_MAP value; points are league points for home and away
+const SCORELINES = [
+  { home: 3, away: 0, score: 1.0, points: [3, 0] },
+  { home: 3, away: 1, score: 0.8, points: [3, 0] },
+  { home: 3, away: 2, score: 0.6, points: [2, 1] },
+  { home: 2, away: 3, score: 0.4, points: [1, 2] },
+  { home: 1, away: 3, score: 0.2, points: [0, 3] },
+  { home: 0, away: 3, score: 0.0, points: [0, 3] },
+];
+
+function expectedScore(p) {
+  const q = 1 - p;
+  const probs = [p ** 3, 3 * p ** 3 * q, 6 * p ** 3 * q ** 2, 6 * p ** 2 * q ** 3, 3 * p * q ** 3, q ** 3];
+  return probs.reduce((sum, pr, i) => sum + pr * SCORELINES[i].score, 0);
+}
+
+const P_SET_GRID = Array.from({ length: 999 }, (_, i) => (i + 1) / 1000);
+const EXPECTED_GRID = P_SET_GRID.map(expectedScore);
+
+function setProbability(e) {
+  if (e <= EXPECTED_GRID[0]) return P_SET_GRID[0];
+  const i = EXPECTED_GRID.findIndex(v => v >= e);
+  if (i === -1) return P_SET_GRID[P_SET_GRID.length - 1];
+  const t = (e - EXPECTED_GRID[i - 1]) / (EXPECTED_GRID[i] - EXPECTED_GRID[i - 1]);
+  return P_SET_GRID[i - 1] + t * (P_SET_GRID[i] - P_SET_GRID[i - 1]);
+}
+
+// Seeded so the same match always shows the same numbers
+function mulberry32(seed) {
+  return () => {
+    seed = (seed + 0x6D2B79F5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function simulateMatch(home, away, homeAdvantage) {
+  const e = 1 / (1 + 10 ** ((away.elo - (home.elo + homeAdvantage)) / S));
+  const pSet = setProbability(e);
+  const random = mulberry32(SEED);
+  const counts = new Array(SCORELINES.length).fill(0);
+  for (let i = 0; i < N_SIMS; i++) {
+    let h = 0, a = 0;
+    while (h < 3 && a < 3) {
+      if (random() < pSet) h++; else a++;
+    }
+    counts[SCORELINES.findIndex(s => s.home === h && s.away === a)]++;
+  }
+  const scorelines = counts.map(c => c / N_SIMS);
+  return { pSet, scorelines, homeWin: scorelines[0] + scorelines[1] + scorelines[2] };
+}
+
+const $ = id => document.getElementById(id);
+
+const TEXT = {
+  tr: {
+    title: "Sultanlar Ligi Maç Tahmini",
+    intro: "Maçı 100.000 kez simüle etmek için iki takım seçin. Reytingler 2025-26 sezonu sonuna aittir.",
+    language: "Dil",
+    chooseMatch: "Maçı seçin",
+    homeTeam: "Ev sahibi takım",
+    awayTeam: "Deplasman takımı",
+    swap: "Takımları değiştir",
+    neutral: "Tarafsız saha, ev sahibi avantajı yok",
+    winProbability: "Kazanma olasılığı",
+    cautionTitle: "Sürpriz sonuç olasılığı burada görünenden yüksek.",
+    cautionBody: "Model ev sahibine %90'ın üzerinde şans verdiğinde ortalaması %97'ydi ve ev sahibi bu maçların %95'ini kazandı. %10'un altında ortalaması %3'tü ve ev sahibi maçların %8'ini kazandı.",
+    matchSummary: "Maç özeti",
+    setLabel: "Ev sahibinin set kazanma olasılığı",
+    setNote: "Herhangi bir sette",
+    fifthLabel: "Maçın beşinci sete gitme olasılığı",
+    fifthNote: "3-2 veya 2-3 biter",
+    pointsLabel: "Beklenen lig puanı",
+    pointsNote: "Önce ev sahibi, sonra deplasman",
+    scoresTitle: "Her skorun olasılığı",
+    scoresNote: "Skorlarda önce ev sahibinin setleri yazılır.",
+    wins: "kazanır",
+    score: "Skor",
+    chance: "Olasılık",
+    leaguePoints: "Lig puanı",
+    howTitle: "Nasıl çalışır?",
+    howBody: "Her takımın Elo reytingi beklenen bir maç skoru verir. Bu skor, her seti kazanma olasılığına çevrilir. Ardından her simülasyonda maç, bir takım 3 sete ulaşana kadar set set oynanır.",
+    limitsTitle: "Bilmeniz gerekenler",
+    limitsBody: "Favori takım, geçmiş 801 maçın %80,5'ini kazandı. Her sette aynı olasılık kullanılır, bu yüzden momentum ve daha kısa olan beşinci set modele dahil değildir. Takımlar 2025-26 sezonunun takımlarıdır ve reytingler 20 Nisan 2026'dan sonraki kadro değişikliklerini hesaba katmaz.",
+    teamMeta: (elo, rank, total) => `Elo ${elo}, ${total} takım içinde ${rank}. sırada`,
+    scoreTip: (team, score, chance, points) => `${team} ${score} kazanır: ${chance}. Lig puanı ${points}.`,
+  },
+  en: {
+    title: "Sultanlar Ligi Match Predictor",
+    intro: "Pick two teams to simulate their match 100,000 times. Ratings are from the end of the 2025-26 season.",
+    language: "Language",
+    chooseMatch: "Choose the match",
+    homeTeam: "Home team",
+    awayTeam: "Away team",
+    swap: "Swap teams",
+    neutral: "Neutral venue, with no home advantage",
+    winProbability: "Win probability",
+    cautionTitle: "Upsets are more likely than this shows.",
+    cautionBody: "When the model gave the home team over 90%, it averaged 97% and they won 95% of those matches. Under 10%, it averaged 3% and they won 8%.",
+    matchSummary: "Match summary",
+    setLabel: "Home team wins a set",
+    setNote: "Chance in any single set",
+    fifthLabel: "Match goes to a fifth set",
+    fifthNote: "Ends 3-2 or 2-3",
+    pointsLabel: "Expected league points",
+    pointsNote: "Home, then away",
+    scoresTitle: "Chance of each final score",
+    scoresNote: "Scores show home sets first.",
+    wins: "wins",
+    score: "Score",
+    chance: "Chance",
+    leaguePoints: "League points",
+    howTitle: "How it works",
+    howBody: "Each team's Elo rating gives an expected match score. That score is converted to a chance of winning each set, then every simulated match is played set by set until a team reaches 3.",
+    limitsTitle: "What to keep in mind",
+    limitsBody: "The favourite won 80.5% of 801 past matches. Every set uses the same chance, so momentum and the shorter fifth set aren't modelled. Teams are those from 2025-26, and ratings ignore squad changes since 20 April 2026.",
+    teamMeta: (elo, rank, total) => `Elo ${elo}, ranked ${rank} of ${total}`,
+    scoreTip: (team, score, chance, points) => `${team} wins ${score}: ${chance}. League points ${points}.`,
+  },
+};
+
+// localStorage can be unavailable, so the choice is only remembered when it works
+let lang = "tr";
+try {
+  if (localStorage.getItem("lang") === "en") lang = "en";
+} catch {}
+const t = key => TEXT[lang][key];
+
+const decimal = (x, digits) => {
+  const text = x.toFixed(digits);
+  return lang === "tr" ? text.replace(".", ",") : text;
+};
+// Turkish puts the percent sign first: %73,1
+const pct = x => {
+  const prefix = x < 0.0005 ? "<" : x > 0.9995 ? ">" : "";
+  const value = decimal(prefix === "<" ? 0.1 : prefix === ">" ? 99.9 : x * 100, 1);
+  return lang === "tr" ? `${prefix}%${value}` : `${prefix}${value}%`;
+};
+const homeSelect = $("home"), awaySelect = $("away"), neutral = $("neutral"), tip = $("tip");
+const teamById = id => TEAMS.find(t => t.id === id);
+
+TEAMS.forEach(team => {
+  for (const select of [homeSelect, awaySelect]) {
+    select.add(new Option(`${team.name} (${Math.round(team.elo)})`, team.id));
+  }
+});
+homeSelect.value = "VAK";
+awaySelect.value = "FEN";
+let previous = { home: homeSelect.value, away: awaySelect.value };
+
+function showTip(slot) {
+  tip.textContent = slot.dataset.tip;
+  tip.hidden = false;
+  const box = slot.getBoundingClientRect();
+  const left = Math.min(Math.max(8, box.left + box.width / 2 - tip.offsetWidth / 2), window.innerWidth - tip.offsetWidth - 8);
+  tip.style.left = `${left}px`;
+  tip.style.top = `${Math.max(8, box.top + 8)}px`;
+}
+const hideTip = () => { tip.hidden = true; };
+
+function renderChart(result, home, away) {
+  const chart = $("chart"), labels = $("labels");
+  chart.replaceChildren();
+  labels.replaceChildren();
+  const top = Math.max(...result.scorelines) / 0.86;   // leaves room for the value above the tallest bar
+  SCORELINES.forEach((line, i) => {
+    const side = line.home === 3 ? "home" : "away";
+    const winner = line.home === 3 ? home : away;
+    const slot = document.createElement("div");
+    slot.className = "slot";
+    slot.tabIndex = 0;
+    slot.dataset.tip = t("scoreTip")(winner.name, `${line.home}-${line.away}`, pct(result.scorelines[i]), `${line.points[0]}-${line.points[1]}`);
+    slot.setAttribute("aria-label", slot.dataset.tip);
+    const value = document.createElement("span");
+    value.className = "slot-value";
+    value.textContent = pct(result.scorelines[i]);
+    const bar = document.createElement("div");
+    bar.className = `bar ${side}`;
+    bar.style.height = `${(result.scorelines[i] / top) * 100}%`;
+    slot.append(value, bar);
+    for (const [event, handler] of [["mouseenter", () => showTip(slot)], ["focus", () => showTip(slot)], ["mouseleave", hideTip], ["blur", hideTip]]) {
+      slot.addEventListener(event, handler);
+    }
+    const label = document.createElement("span");
+    label.textContent = `${line.home}-${line.away}`;
+    if (i === 3) {
+      const net = document.createElement("div");
+      net.className = "net";
+      chart.append(net);
+      labels.append(document.createElement("i"));
+    }
+    chart.append(slot);
+    labels.append(label);
+  });
+}
+
+function renderTable(result) {
+  $("table").replaceChildren(...SCORELINES.map((line, i) => {
+    const row = document.createElement("tr");
+    for (const [text, cls] of [[`${line.home}-${line.away}`, ""], [pct(result.scorelines[i]), "num"], [`${line.points[0]}-${line.points[1]}`, "num"]]) {
+      const cell = document.createElement("td");
+      cell.textContent = text;
+      cell.className = cls;
+      row.append(cell);
+    }
+    return row;
+  }));
+}
+
+function render() {
+  const home = teamById(homeSelect.value), away = teamById(awaySelect.value);
+  const advantage = neutral.checked ? 0 : H;
+  const result = simulateMatch(home, away, advantage);
+  const awayWin = 1 - result.homeWin;
+
+  $("home-name").textContent = home.name;
+  $("away-name").textContent = away.name;
+  $("side-home").textContent = home.name;
+  $("side-away").textContent = away.name;
+  $("home-win").textContent = pct(result.homeWin);
+  $("away-win").textContent = pct(awayWin);
+  const rank = team => TEAMS.indexOf(team) + 1;
+  $("home-meta").textContent = t("teamMeta")(Math.round(home.elo), rank(home), TEAMS.length);
+  $("away-meta").textContent = t("teamMeta")(Math.round(away.elo), rank(away), TEAMS.length);
+
+  const splitHome = $("split-home"), splitAway = $("split-away");
+  splitHome.style.flex = `${result.homeWin} 1 0`;
+  splitAway.style.flex = `${awayWin} 1 0`;
+  splitHome.style.display = result.homeWin < 0.0005 ? "none" : "";
+  splitAway.style.display = awayWin < 0.0005 ? "none" : "";
+  splitHome.textContent = result.homeWin >= 0.12 ? pct(result.homeWin) : "";
+  splitAway.textContent = awayWin >= 0.12 ? pct(awayWin) : "";
+  $("split").setAttribute("aria-label", `${home.name} ${pct(result.homeWin)}, ${away.name} ${pct(awayWin)}`);
+
+  $("set-prob").textContent = pct(result.pSet);
+  $("five-sets").textContent = pct(result.scorelines[2] + result.scorelines[3]);
+  const expectedPoints = side => SCORELINES.reduce((sum, line, i) => sum + line.points[side] * result.scorelines[i], 0);
+  $("league-pts").textContent = `${decimal(expectedPoints(0), 2)} – ${decimal(expectedPoints(1), 2)}`;
+  $("caution").hidden = result.homeWin <= 0.9 && result.homeWin >= 0.1;
+
+  renderChart(result, home, away);
+  renderTable(result);
+  previous = { home: home.id, away: away.id };
+}
+
+// Picking the team already on the other side swaps the two
+homeSelect.addEventListener("change", () => {
+  if (homeSelect.value === awaySelect.value) awaySelect.value = previous.home;
+  render();
+});
+awaySelect.addEventListener("change", () => {
+  if (homeSelect.value === awaySelect.value) homeSelect.value = previous.away;
+  render();
+});
+$("swap").addEventListener("click", () => {
+  [homeSelect.value, awaySelect.value] = [awaySelect.value, homeSelect.value];
+  render();
+});
+neutral.addEventListener("change", render);
+
+function applyLanguage() {
+  document.documentElement.lang = lang;
+  document.title = t("title");
+  document.querySelectorAll("[data-i18n]").forEach(el => { el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll("[data-i18n-aria]").forEach(el => el.setAttribute("aria-label", t(el.dataset.i18nAria)));
+  document.querySelectorAll("[data-lang]").forEach(button => button.setAttribute("aria-pressed", String(button.dataset.lang === lang)));
+  render();
+}
+
+document.querySelectorAll("[data-lang]").forEach(button => button.addEventListener("click", () => {
+  lang = button.dataset.lang;
+  try {
+    localStorage.setItem("lang", lang);
+  } catch {}
+  applyLanguage();
+}));
+
+applyLanguage();
+</script>
+</body>
+</html>
