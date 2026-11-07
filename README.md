@@ -16,7 +16,7 @@ New results come from the [Turkish Volleyball Federation (TVF) fixture](https://
 
 **To see predictions:** open `dashboard.html` in a browser, then pick a home and an away team. Keep `dashboard_data.js` in the same folder, because the page reads its data from there.
 
-**To work with the code:** you need Python 3.9.
+**To work with the code:** you need Python 3.12, the version the weekly update uses. Python 3.9 also works.
 
 ```powershell
 pip install -r requirements.txt
@@ -239,5 +239,5 @@ Check that playoff matches appear in `active_season_matches.csv`.
 ### Once a year, after the season
 
 - Rerun the notebook. If tuning finds better settings, change `model` in `config.json`. The test `test_ratings_on_the_workbook_are_unchanged` will then fail on purpose, so update its expected values.
-- Update the versions in `requirements.txt` and `.python-version` together, then run `pytest`.
+- Update the versions in `requirements.txt` and `.python-version` together, then run `pytest`. The workflow runs on Ubuntu 24.04, which GitHub supports until 2029; move it to a newer image when that ends.
 - Finished seasons can stay in `active_season_matches.csv`. If you move one into the workbook, do it in Excel and delete its rows from the CSV, or the update will stop on duplicate match ids.
