@@ -1,0 +1,48 @@
+{
+  "paths": {
+    "history": "sultanlar_ligi_2021-2026.xlsx",
+    "active_matches": "active_season_matches.csv",
+    "teams": "teams.csv",
+    "ratings": "ratings.csv",
+    "dashboard_data": "dashboard_data.js"
+  },
+  "tvf": {
+    "url": "https://tvf.org.tr/lig/sultanlar-ligi?sekme=fikstur",
+    "user_agent": "Mozilla/5.0 (compatible; volleyball-model/1.0)",
+    "timeout_seconds": 60,
+    "attempts": 3,
+    "retry_wait_seconds": 10,
+    "competition_id": "SULTANLAR",
+    "regular_season_type": "LE"
+  },
+  "model": {
+    "K": 110,
+    "H": 25,
+    "S": 400,
+    "start": 1500,
+    "promoted": -200,
+    "revert": 0.0
+  },
+  "scoring": {
+    "sets_to_win": 3,
+    "scorelines": [
+      { "home": 3, "away": 0, "score": 1.0, "league_points": [3, 0] },
+      { "home": 3, "away": 1, "score": 0.8, "league_points": [3, 0] },
+      { "home": 3, "away": 2, "score": 0.6, "league_points": [2, 1] },
+      { "home": 2, "away": 3, "score": 0.4, "league_points": [1, 2] },
+      { "home": 1, "away": 3, "score": 0.2, "league_points": [0, 3] },
+      { "home": 0, "away": 3, "score": 0.0, "league_points": [0, 3] }
+    ]
+  },
+  "simulation": {
+    "n_sims": 100000,
+    "seed": 42
+  },
+  "evaluation": {
+    "burn_in_seasons": 1,
+    "caution_threshold": 0.9
+  },
+  "dashboard": {
+    "form_matches": 5
+  }
+}

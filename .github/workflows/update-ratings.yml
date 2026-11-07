@@ -1,0 +1,35 @@
+name: Weekly Elo update
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"   # Mondays at 09:00 Turkish time, after the weekend matches
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-ratings
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version-file: .python-version
+          cache: pip
+      - run: pip install -r requirements.txt
+      - run: pytest
+      - run: python update_ratings.py
+      - name: Commit the new ratings
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet && exit 0
+          git commit -m "Update Elo ratings with latest TVF results"
+          git pull --rebase
+          git push

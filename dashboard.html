@@ -8,19 +8,21 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-/* Layout idea: a match scoreboard on top, then the six possible results split at the net. */
+/* Layout idea: the match on the left, its six possible results split at the net on the right. */
 :root {
   color-scheme: light;
   --plane: #f9f9f7;
   --surface: #fcfcfb;
   --ink: #0b0b0b;
-  --ink-2: #52514e;
+  --ink-2: #3f3e3b;
   --muted: #6f6d68;
   --line: #e1e0d9;
   --axis: #c3c2b7;
   --home: #2a78d6;
   --away: #eb6834;
   --warning: #fab219;
+  --good: #006300;
+  --critical: #d03b3b;
   --display: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
   --body: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
 }
@@ -30,12 +32,13 @@
     --plane: #0d0d0d;
     --surface: #1a1a19;
     --ink: #f0efec;
-    --ink-2: #c3c2b7;
+    --ink-2: #dcdbd2;
     --muted: #a09e96;
     --line: #2c2c2a;
     --axis: #383835;
     --home: #3987e5;
     --away: #d95926;
+    --good: #008300;
   }
 }
 :root[data-theme="dark"] {
@@ -43,12 +46,13 @@
   --plane: #0d0d0d;
   --surface: #1a1a19;
   --ink: #f0efec;
-  --ink-2: #c3c2b7;
+  --ink-2: #dcdbd2;
   --muted: #a09e96;
   --line: #2c2c2a;
   --axis: #383835;
   --home: #3987e5;
   --away: #d95926;
+  --good: #008300;
 }
 
 * { box-sizing: border-box; }
@@ -59,15 +63,17 @@ body {
   font: 400 16px/1.5 var(--body);
 }
 main {
-  max-width: 980px;
+  max-width: 1280px;
   margin: 0 auto;
-  padding: 32px 20px 48px;
+  padding: 20px 24px 32px;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 20px;
+  gap: 16px;
 }
+.layout { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 16px; }
+.column { display: grid; gap: 16px; align-content: start; min-width: 0; }
 h1, h2 { font-family: var(--display); font-weight: 600; margin: 0; text-wrap: balance; }
-h1 { font-size: 38px; line-height: 1.05; }
+h1 { font-size: 34px; line-height: 1.05; }
 h2 { font-size: 24px; line-height: 1.15; }
 p { margin: 0; }
 .sub { color: var(--ink-2); }
@@ -75,12 +81,14 @@ p { margin: 0; }
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 8px;
-  padding: 20px;
+  padding: 16px 20px;
 }
 
 /* Header and language switch */
 .top { display: flex; flex-wrap: wrap; gap: 12px 24px; justify-content: space-between; align-items: flex-start; }
 .top > div:first-child { flex: 1 1 320px; min-width: 0; }
+.record { margin-top: 4px; font-size: 15px; color: var(--ink-2); }
+.record strong { color: var(--ink); font-weight: 600; }
 .lang { display: flex; gap: 4px; }
 .lang button { min-height: 36px; padding: 6px 12px; font-size: 14px; }
 .lang button[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--surface); }
@@ -93,7 +101,10 @@ p { margin: 0; }
   align-items: end;
 }
 .field { display: grid; gap: 4px; min-width: 0; }
-.field label { font-size: 14px; font-weight: 600; color: var(--ink-2); }
+.field label { font-size: 15px; font-weight: 600; color: var(--ink-2); }
+.picker { position: relative; }
+.picker .dot { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); pointer-events: none; }
+.picker select { padding-left: 30px; }
 select, button {
   font: 500 16px/1.2 var(--body);
   color: var(--ink);
@@ -105,43 +116,49 @@ select, button {
   cursor: pointer;
 }
 select { width: 100%; }
+#swap { display: grid; place-items: center; width: 44px; padding: 0; }
 button:hover, select:hover { border-color: var(--muted); }
-:is(select, button, input, .slot):focus-visible { outline: 2px solid var(--home); outline-offset: 2px; }
+:is(select, button, input, .slot, .chip):focus-visible { outline: 2px solid var(--home); outline-offset: 2px; }
 .neutral { grid-column: 1 / -1; display: flex; gap: 8px; align-items: center; color: var(--ink-2); }
 .neutral input { width: 18px; height: 18px; margin: 0; accent-color: var(--home); }
 
 /* Scoreboard */
-.board { display: grid; gap: 16px; }
-.teams { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: auto auto auto; column-gap: 24px; row-gap: 2px; }
-.team { display: grid; grid-row: span 3; grid-template-rows: subgrid; min-width: 0; }
+.board { display: grid; gap: 12px; }
+.teams { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: repeat(5, auto); column-gap: 24px; row-gap: 4px; }
+.team { display: grid; grid-row: span 5; grid-template-rows: subgrid; min-width: 0; }
+.full-name { color: var(--ink-2); font-size: 13px; font-weight: 600; letter-spacing: 0.04em; line-height: 1.3; margin-top: -2px; }
 .team.right { text-align: right; justify-items: end; }
 .team-name { display: flex; gap: 8px; align-items: baseline; font-weight: 600; font-size: 18px; line-height: 1.25; }
 .team.right .team-name { flex-direction: row-reverse; }
-.dot { flex: none; width: 10px; height: 10px; border-radius: 50%; }
+.dot { flex: none; display: inline-block; width: 10px; height: 10px; border-radius: 50%; }
 .dot.home, .swatch.home { background: var(--home); }
 .dot.away, .swatch.away { background: var(--away); }
-.win { font: 700 76px/1 var(--display); align-self: end; }
-.team-meta { color: var(--ink-2); font-size: 14px; }
-.split { display: flex; gap: 2px; height: 28px; }
-.split div {
-  min-width: 0;
-  border-radius: 4px;
-  color: #fff;
-  font-weight: 600;
-  font-size: 14px;
-  line-height: 28px;
-  padding: 0 8px;
-  white-space: nowrap;
-}
+.win { font: 700 68px/1 var(--display); align-self: end; }
+.team-meta { color: var(--ink-2); font-size: 16px; font-weight: 500; }
+.form { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; color: var(--ink-2); font-size: 15px; font-weight: 500; }
+.team.right .form { justify-content: flex-end; }
+.form-label { margin-right: 4px; }
+.chip { width: 24px; height: 24px; border-radius: 4px; display: grid; place-items: center; color: #fff; font-size: 13px; font-weight: 600; line-height: 1; cursor: default; }
+.chip.won { background: var(--good); }
+.chip.lost { background: var(--critical); }
+.split { display: flex; gap: 2px; height: 8px; }
+.split div { min-width: 0; border-radius: 4px; }
 .split .home { background: var(--home); }
-.split .away { background: var(--away); text-align: right; }
+.split .away { background: var(--away); }
+.summary { display: grid; gap: 2px; }
+.likely { font-size: 18px; font-weight: 600; }
+.context { color: var(--ink-2); font-size: 15px; font-weight: 500; }
 
 /* Summary tiles */
 .tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
 .tile { display: grid; gap: 2px; align-content: start; }
-.tile-label { color: var(--ink-2); font-size: 14px; }
+.tile-label { color: var(--ink-2); font-size: 15px; font-weight: 500; line-height: 1.3; }
 .tile-value { font: 600 32px/1.1 var(--display); }
-.tile-note { color: var(--ink-2); font-size: 14px; }
+.tile-note { color: var(--ink-2); font-size: 15px; line-height: 1.3; }
+.points { display: grid; gap: 4px; }
+.points > div { display: flex; gap: 8px; align-items: baseline; min-width: 0; }
+.points .tile-value { flex: none; font-size: 28px; }
+.points .dot { vertical-align: middle; }
 
 /* Lopsided-match warning */
 .caution {
@@ -157,44 +174,43 @@ button:hover, select:hover { border-color: var(--muted); }
 .caution svg { flex: none; margin-top: 2px; color: var(--warning); }
 
 /* Scoreline chart */
-.results { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 28px; align-items: start; }
-.results-head { grid-column: 1 / -1; display: grid; gap: 2px; }
-.sides { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 14px; color: var(--ink-2); margin-bottom: 8px; }
+.results { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.results-head { display: grid; gap: 2px; }
+.results-head .sub { font-size: 15px; }
+.sides { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 16px; font-weight: 500; color: var(--ink-2); }
 .sides > span:last-child { text-align: right; }
 .swatch { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; }
-.chart { display: flex; height: 240px; border-bottom: 1px solid var(--axis); }
+.chart { flex: 1 1 auto; display: flex; min-height: 260px; border-bottom: 1px solid var(--axis); }
 .slot {
   flex: 1 1 0;
   min-width: 0;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
   align-items: center;
   gap: 4px;
   border-radius: 4px 4px 0 0;
   cursor: default;
 }
 .slot:hover { background: var(--line); }
-.slot-value { font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; }
-.bar { width: 24px; border-radius: 4px 4px 0 0; transition: height 200ms ease-out; }
+.slot-value { font-size: 16px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.bar { width: 24px; flex-basis: 0; min-height: 0; border-radius: 4px 4px 0 0; }
 .bar.home { background: var(--home); }
 .bar.away { background: var(--away); }
+.gap { flex-basis: 0; }
 .net { flex: none; width: 2px; margin: 0 6px; background: var(--axis); }
-.labels { display: flex; padding-top: 6px; }
+.labels { display: flex; }
 .labels span {
   flex: 1 1 0;
+  min-width: 0;
+  display: grid;
   text-align: center;
-  font-size: 14px;
-  color: var(--ink-2);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.25;
   font-variant-numeric: tabular-nums;
 }
+.labels small { font-size: 14px; font-weight: 500; color: var(--ink-2); }
 .labels i { flex: none; width: 14px; }
-
-table { width: 100%; border-collapse: collapse; font-size: 15px; }
-th { text-align: left; font-weight: 600; font-size: 14px; color: var(--ink-2); }
-th, td { padding: 7px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
-td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
-tbody tr:last-child td { border-bottom: 0; }
 
 .tip {
   position: fixed;
@@ -210,27 +226,27 @@ tbody tr:last-child td { border-bottom: 0; }
 }
 .tip[hidden] { display: none; }
 
-.notes { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px 28px; color: var(--ink-2); font-size: 15px; }
-.notes h2 { color: var(--ink); font-size: 20px; margin-bottom: 4px; }
+.notes { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px 28px; align-items: start; color: var(--ink-2); }
+.notes h2 { color: var(--ink); font-size: 20px; line-height: 1.2; margin-bottom: 4px; }
 
-@media (max-width: 720px) {
-  .results, .notes { grid-template-columns: 1fr; }
-  .tiles { grid-template-columns: 1fr; }
-  .win { font-size: 60px; }
+@media (max-width: 960px) {
+  .layout { grid-template-columns: minmax(0, 1fr); }
+  .notes { grid-template-columns: 1fr; }
 }
 @media (max-width: 640px) {
   .controls { grid-template-columns: 1fr; }
   #swap { justify-self: start; }
+  .tiles { grid-template-columns: 1fr; }
+  .win { font-size: 60px; }
 }
 @media (max-width: 480px) {
+  main { padding: 16px 16px 24px; }
   .teams { column-gap: 12px; }
   .win { font-size: 46px; }
   .team-name { font-size: 16px; }
-  .slot-value { font-size: 12px; }
+  .team-meta { font-size: 15px; }
+  .slot-value { font-size: 14px; }
   .bar { width: 18px; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .bar { transition: none; }
 }
 </style>
 </head>
@@ -239,7 +255,8 @@ tbody tr:last-child td { border-bottom: 0; }
   <header class="top">
     <div>
       <h1 data-i18n="title">Sultanlar Ligi Maç Tahmini</h1>
-      <p class="sub" data-i18n="intro">Maçı 100.000 kez simüle etmek için iki takım seçin. Reytingler 2025-26 sezonu sonuna aittir.</p>
+      <p class="sub" data-i18n="intro"></p>
+      <p class="record"><strong data-i18n="recordLabel"></strong> <span data-i18n="record"></span></p>
     </div>
     <div class="lang" role="group" data-i18n-aria="language" aria-label="Dil">
       <button type="button" data-lang="tr" lang="tr" aria-pressed="true">Türkçe</button>
@@ -247,132 +264,126 @@ tbody tr:last-child td { border-bottom: 0; }
     </div>
   </header>
 
-  <section class="panel controls" data-i18n-aria="chooseMatch" aria-label="Maçı seçin">
-    <div class="field">
-      <label for="home" data-i18n="homeTeam">Ev sahibi takım</label>
-      <select id="home"></select>
-    </div>
-    <button id="swap" type="button" data-i18n="swap">Takımları değiştir</button>
-    <div class="field">
-      <label for="away" data-i18n="awayTeam">Deplasman takımı</label>
-      <select id="away"></select>
-    </div>
-    <label class="neutral" for="neutral">
-      <input id="neutral" type="checkbox">
-      <span data-i18n="neutral">Tarafsız saha, ev sahibi avantajı yok</span>
-    </label>
-  </section>
+  <div class="layout">
+    <div class="column">
+      <section class="panel controls" data-i18n-aria="chooseMatch" aria-label="Maçı seçin">
+        <div class="field">
+          <label for="home" data-i18n="homeTeam"></label>
+          <div class="picker"><span class="dot home"></span><select id="home"></select></div>
+        </div>
+        <button id="swap" type="button" data-i18n-aria="swap" data-i18n-title="swap">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h16m0 0-4-4m4 4-4 4M20 16H4m0 0 4-4m-4 4 4 4"/></svg>
+        </button>
+        <div class="field">
+          <label for="away" data-i18n="awayTeam"></label>
+          <div class="picker"><span class="dot away"></span><select id="away"></select></div>
+        </div>
+        <label class="neutral" for="neutral">
+          <input id="neutral" type="checkbox">
+          <span data-i18n="neutral"></span>
+        </label>
+      </section>
 
-  <section class="panel board" data-i18n-aria="winProbability" aria-label="Kazanma olasılığı">
-    <div class="teams">
-      <div class="team">
-        <div class="team-name"><span class="dot home"></span><span id="home-name"></span></div>
-        <div class="win" id="home-win"></div>
-        <div class="team-meta" id="home-meta"></div>
+      <section class="panel board" data-i18n-aria="winProbability" aria-label="Kazanma olasılığı">
+        <div class="teams">
+          <div class="team">
+            <div class="team-name"><span class="dot home"></span><span id="home-name"></span></div>
+            <div class="full-name" id="home-full"></div>
+            <div class="win" id="home-win"></div>
+            <div class="team-meta" id="home-meta"></div>
+            <div class="form" id="home-form"></div>
+          </div>
+          <div class="team right">
+            <div class="team-name"><span class="dot away"></span><span id="away-name"></span></div>
+            <div class="full-name" id="away-full"></div>
+            <div class="win" id="away-win"></div>
+            <div class="team-meta" id="away-meta"></div>
+            <div class="form" id="away-form"></div>
+          </div>
+        </div>
+        <div class="split" id="split" role="img">
+          <div class="home" id="split-home"></div>
+          <div class="away" id="split-away"></div>
+        </div>
+        <div class="summary">
+          <p class="likely" id="likely"></p>
+          <p class="context" id="h2h"></p>
+        </div>
+      </section>
+
+      <aside class="caution" id="caution" hidden>
+        <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path fill="currentColor" d="M10 1.5 19.5 18H.5L10 1.5Zm-1 6v5h2v-5H9Zm0 6.5v2h2v-2H9Z"/></svg>
+        <p><strong data-i18n="cautionTitle"></strong> <span id="caution-body"></span></p>
+      </aside>
+
+      <section class="tiles" data-i18n-aria="matchSummary" aria-label="Maç özeti">
+        <div class="panel tile">
+          <span class="tile-label" id="set-label"></span>
+          <span class="tile-value" id="set-prob"></span>
+          <span class="tile-note" data-i18n="setNote"></span>
+        </div>
+        <div class="panel tile">
+          <span class="tile-label" data-i18n="fifthLabel"></span>
+          <span class="tile-value" id="five-sets"></span>
+          <span class="tile-note" data-i18n="fifthNote"></span>
+        </div>
+        <div class="panel tile">
+          <span class="tile-label" data-i18n="pointsLabel"></span>
+          <div class="points">
+            <div><span class="tile-value"><span class="dot home"></span> <span id="home-pts"></span></span><span class="tile-note" id="home-pts-team"></span></div>
+            <div><span class="tile-value"><span class="dot away"></span> <span id="away-pts"></span></span><span class="tile-note" id="away-pts-team"></span></div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <section class="panel results">
+      <div class="results-head">
+        <h2 data-i18n="scoresTitle"></h2>
+        <p class="sub" data-i18n="scoresNote"></p>
       </div>
-      <div class="team right">
-        <div class="team-name"><span class="dot away"></span><span id="away-name"></span></div>
-        <div class="win" id="away-win"></div>
-        <div class="team-meta" id="away-meta"></div>
-      </div>
-    </div>
-    <div class="split" id="split" role="img">
-      <div class="home" id="split-home"></div>
-      <div class="away" id="split-away"></div>
-    </div>
-  </section>
-
-  <aside class="caution" id="caution" hidden>
-    <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path fill="currentColor" d="M10 1.5 19.5 18H.5L10 1.5Zm-1 6v5h2v-5H9Zm0 6.5v2h2v-2H9Z"/></svg>
-    <p><strong data-i18n="cautionTitle">Sürpriz sonuç olasılığı burada görünenden yüksek.</strong> <span data-i18n="cautionBody">Model ev sahibine %90'ın üzerinde şans verdiğinde ortalaması %97'ydi ve ev sahibi bu maçların %95'ini kazandı. %10'un altında ortalaması %3'tü ve ev sahibi maçların %8'ini kazandı.</span></p>
-  </aside>
-
-  <section class="tiles" data-i18n-aria="matchSummary" aria-label="Maç özeti">
-    <div class="panel tile">
-      <span class="tile-label" data-i18n="setLabel">Ev sahibinin set kazanma olasılığı</span>
-      <span class="tile-value" id="set-prob"></span>
-      <span class="tile-note" data-i18n="setNote">Herhangi bir sette</span>
-    </div>
-    <div class="panel tile">
-      <span class="tile-label" data-i18n="fifthLabel">Maçın beşinci sete gitme olasılığı</span>
-      <span class="tile-value" id="five-sets"></span>
-      <span class="tile-note" data-i18n="fifthNote">3-2 veya 2-3 biter</span>
-    </div>
-    <div class="panel tile">
-      <span class="tile-label" data-i18n="pointsLabel">Beklenen lig puanı</span>
-      <span class="tile-value" id="league-pts"></span>
-      <span class="tile-note" data-i18n="pointsNote">Önce ev sahibi, sonra deplasman</span>
-    </div>
-  </section>
-
-  <section class="panel results">
-    <div class="results-head">
-      <h2 data-i18n="scoresTitle">Her skorun olasılığı</h2>
-      <p class="sub" data-i18n="scoresNote">Skorlarda önce ev sahibinin setleri yazılır.</p>
-    </div>
-    <div>
       <div class="sides">
-        <span><i class="swatch home"></i><span id="side-home"></span> <span data-i18n="wins">kazanır</span></span>
-        <span><i class="swatch away"></i><span id="side-away"></span> <span data-i18n="wins">kazanır</span></span>
+        <span><i class="swatch home"></i><span id="side-home"></span> <span data-i18n="wins"></span></span>
+        <span><i class="swatch away"></i><span id="side-away"></span> <span data-i18n="wins"></span></span>
       </div>
       <div class="chart" id="chart"></div>
       <div class="labels" id="labels"></div>
-    </div>
-    <table>
-      <thead>
-        <tr><th scope="col" data-i18n="score">Skor</th><th scope="col" class="num" data-i18n="chance">Olasılık</th><th scope="col" class="num" data-i18n="leaguePoints">Lig puanı</th></tr>
-      </thead>
-      <tbody id="table"></tbody>
-    </table>
-  </section>
+    </section>
+  </div>
 
   <section class="panel notes">
     <div>
-      <h2 data-i18n="howTitle">Nasıl çalışır?</h2>
-      <p data-i18n="howBody">Her takımın Elo reytingi beklenen bir maç skoru verir. Bu skor, her seti kazanma olasılığına çevrilir. Ardından her simülasyonda maç, bir takım 3 sete ulaşana kadar set set oynanır.</p>
+      <h2 data-i18n="howTitle"></h2>
+      <p data-i18n="howBody"></p>
     </div>
     <div>
-      <h2 data-i18n="limitsTitle">Bilmeniz gerekenler</h2>
-      <p data-i18n="limitsBody">Favori takım, geçmiş 801 maçın %80,5'ini kazandı. Her sette aynı olasılık kullanılır, bu yüzden momentum ve daha kısa olan beşinci set modele dahil değildir. Takımlar 2025-26 sezonunun takımlarıdır ve reytingler 20 Nisan 2026'dan sonraki kadro değişikliklerini hesaba katmaz.</p>
+      <h2 data-i18n="limitsTitle"></h2>
+      <p data-i18n="limitsBody"></p>
     </div>
   </section>
 </main>
 <div class="tip" id="tip" role="tooltip" hidden></div>
 
+<script src="dashboard_data.js"></script>
 <script>
-// Final ratings from run_elo(df) in EloModelV2.ipynb, using its default settings.
-const TEAMS = [
-  { id: "VAK", name: "VakıfBank", elo: 1958.2 },
-  { id: "FEN", name: "Fenerbahçe", elo: 1867.5 },
-  { id: "ECZ", name: "Eczacıbaşı", elo: 1729.3 },
-  { id: "ZER", name: "Zeren Spor", elo: 1677.6 },
-  { id: "GS", name: "Galatasaray", elo: 1627.2 },
-  { id: "GOZ", name: "Göztepe", elo: 1585.2 },
-  { id: "KUZ", name: "Kuzeyboru", elo: 1513.2 },
-  { id: "ARS", name: "Aras Kargo", elo: 1482.1 },
-  { id: "THY", name: "Türk Hava Yolları", elo: 1420.6 },
-  { id: "NIL", name: "Nilüfer Belediyespor", elo: 1413.2 },
-  { id: "BJK", name: "Beşiktaş", elo: 1367.3 },
-  { id: "ILB", name: "İlbank", elo: 1300.4 },
-  { id: "AYD", name: "Aydın Büyükşehir Belediyespor", elo: 1291.7 },
-  { id: "BAH", name: "Bahçelievler Belediyespor", elo: 1052.3 },
-];
-const H = 25, S = 400, N_SIMS = 100000, SEED = 42;
+const D = window.DASHBOARD_DATA;
+if (!D) throw new Error("dashboard_data.js is missing: run python update_ratings.py");
+const TEAMS = D.teams, SCORELINES = D.scorelines, TARGET = D.setsToWin;
+const isHomeWin = line => line.home === TARGET;
 
-// score is the S_MAP value; points are league points for home and away
-const SCORELINES = [
-  { home: 3, away: 0, score: 1.0, points: [3, 0] },
-  { home: 3, away: 1, score: 0.8, points: [3, 0] },
-  { home: 3, away: 2, score: 0.6, points: [2, 1] },
-  { home: 2, away: 3, score: 0.4, points: [1, 2] },
-  { home: 1, away: 3, score: 0.2, points: [0, 3] },
-  { home: 0, away: 3, score: 0.0, points: [0, 3] },
-];
+function combinations(n, k) {
+  let result = 1;
+  for (let i = 1; i <= k; i++) result = result * (n - k + i) / i;
+  return result;
+}
+
+function scorelineProbability(line, p) {
+  const q = 1 - p, losing = isHomeWin(line) ? line.away : line.home;
+  return combinations(TARGET - 1 + losing, losing) * p ** line.home * q ** line.away;
+}
 
 function expectedScore(p) {
-  const q = 1 - p;
-  const probs = [p ** 3, 3 * p ** 3 * q, 6 * p ** 3 * q ** 2, 6 * p ** 2 * q ** 3, 3 * p * q ** 3, q ** 3];
-  return probs.reduce((sum, pr, i) => sum + pr * SCORELINES[i].score, 0);
+  return SCORELINES.reduce((sum, line) => sum + scorelineProbability(line, p) * line.score, 0);
 }
 
 const P_SET_GRID = Array.from({ length: 999 }, (_, i) => (i + 1) / 1000);
@@ -397,19 +408,19 @@ function mulberry32(seed) {
 }
 
 function simulateMatch(home, away, homeAdvantage) {
-  const e = 1 / (1 + 10 ** ((away.elo - (home.elo + homeAdvantage)) / S));
+  const e = 1 / (1 + 10 ** ((away.elo - (home.elo + homeAdvantage)) / D.scale));
   const pSet = setProbability(e);
-  const random = mulberry32(SEED);
+  const random = mulberry32(D.seed);
   const counts = new Array(SCORELINES.length).fill(0);
-  for (let i = 0; i < N_SIMS; i++) {
+  for (let i = 0; i < D.nSims; i++) {
     let h = 0, a = 0;
-    while (h < 3 && a < 3) {
+    while (h < TARGET && a < TARGET) {
       if (random() < pSet) h++; else a++;
     }
     counts[SCORELINES.findIndex(s => s.home === h && s.away === a)]++;
   }
-  const scorelines = counts.map(c => c / N_SIMS);
-  return { pSet, scorelines, homeWin: scorelines[0] + scorelines[1] + scorelines[2] };
+  const scorelines = counts.map(c => c / D.nSims);
+  return { pSet, scorelines, homeWin: SCORELINES.reduce((sum, line, i) => sum + (isHomeWin(line) ? scorelines[i] : 0), 0) };
 }
 
 const $ = id => document.getElementById(id);
@@ -417,65 +428,81 @@ const $ = id => document.getElementById(id);
 const TEXT = {
   tr: {
     title: "Sultanlar Ligi Maç Tahmini",
-    intro: "Maçı 100.000 kez simüle etmek için iki takım seçin. Reytingler 2025-26 sezonu sonuna aittir.",
+    intro: "İki takım seçin, maç {nSims} kez simüle edilsin. Son işlenen maç tarihi: {date}.",
     language: "Dil",
     chooseMatch: "Maçı seçin",
     homeTeam: "Ev sahibi takım",
     awayTeam: "Deplasman takımı",
     swap: "Takımları değiştir",
-    neutral: "Tarafsız saha, ev sahibi avantajı yok",
+    neutral: "Tarafsız saha (ev sahibi avantajı: +{homeAdvantage} Elo)",
     winProbability: "Kazanma olasılığı",
-    cautionTitle: "Sürpriz sonuç olasılığı burada görünenden yüksek.",
-    cautionBody: "Model ev sahibine %90'ın üzerinde şans verdiğinde ortalaması %97'ydi ve ev sahibi bu maçların %95'ini kazandı. %10'un altında ortalaması %3'tü ve ev sahibi maçların %8'ini kazandı.",
+    cautionTitle: "Sürprizler burada görünenden daha sık yaşanır.",
+    cautionHigh: "Geçmişte ev sahibine {high} üstü şans verilen {highMatches} maçta modelin ortalama tahmini {highPredicted} idi, ancak ev sahibinin gerçek kazanma oranı {highActual} oldu.",
+    cautionLow: "Geçmişte ev sahibine {low} altı şans verilen {lowMatches} maçta modelin ortalama tahmini {lowPredicted} idi, ancak ev sahibinin gerçek kazanma oranı {lowActual} oldu.",
     matchSummary: "Maç özeti",
-    setLabel: "Ev sahibinin set kazanma olasılığı",
+    setLabel: team => `${team}: set kazanma olasılığı`,
     setNote: "Herhangi bir sette",
-    fifthLabel: "Maçın beşinci sete gitme olasılığı",
+    fifthLabel: "Maçın karar setine gitme olasılığı",
     fifthNote: "3-2 veya 2-3 biter",
     pointsLabel: "Beklenen lig puanı",
-    pointsNote: "Önce ev sahibi, sonra deplasman",
     scoresTitle: "Her skorun olasılığı",
-    scoresNote: "Skorlarda önce ev sahibinin setleri yazılır.",
+    scoresNote: "Skorlarda önce ev sahibinin setleri yazılır. Puanlar, kazanan takımın aldığı lig puanıdır.",
     wins: "kazanır",
-    score: "Skor",
-    chance: "Olasılık",
-    leaguePoints: "Lig puanı",
+    recordLabel: "Modelin geçmiş başarısı:",
+    record: "{firstSeason} sezonundan bu yana {matches} maçta favori takımın kazanma oranı {accuracy}.",
+    points: n => `${n} puan`,
+    likely: (team, score, chance) => `En olası sonuç: ${team} ${score} (${chance})`,
+    headToHead: (since, home, homeWins, awayWins, away) => `Karşılıklı maçlar (${since} sezonundan beri): ${home} ${homeWins} – ${awayWins} ${away}`,
+    noMeetings: since => `Karşılıklı maçlar: ${since} sezonundan itibaren kayıtlı maç yok.`,
+    formLabel: n => `Son ${n}:`,
+    formWon: "G",
+    formLost: "M",
+    formWonMatch: (opponent, score) => `${opponent} karşısında ${score} galibiyet`,
+    formLostMatch: (opponent, score) => `${opponent} karşısında ${score} mağlubiyet`,
     howTitle: "Nasıl çalışır?",
-    howBody: "Her takımın Elo reytingi beklenen bir maç skoru verir. Bu skor, her seti kazanma olasılığına çevrilir. Ardından her simülasyonda maç, bir takım 3 sete ulaşana kadar set set oynanır.",
+    howBody: "Her takımın Elo reytingi, ev sahibine +{homeAdvantage} eklendikten sonra beklenen bir maç skoru verir. Bu skor, tek bir seti kazanma olasılığına çevrilir. Ardından maç {nSims} kez, bir takım {setsToWin} sete ulaşana kadar set set simüle edilir. Reytingler her maçtan sonra, sonucun beklentiden farkına göre güncellenir.",
     limitsTitle: "Bilmeniz gerekenler",
-    limitsBody: "Favori takım, geçmiş 801 maçın %80,5'ini kazandı. Her sette aynı olasılık kullanılır, bu yüzden momentum ve daha kısa olan beşinci set modele dahil değildir. Takımlar 2025-26 sezonunun takımlarıdır ve reytingler 20 Nisan 2026'dan sonraki kadro değişikliklerini hesaba katmaz.",
+    limitsBody: "Her sette aynı olasılık kullanılır, bu yüzden momentum ve daha kısa olan karar seti modele dahil değildir. Takımlar {season} sezonunun takımlarıdır. Lige yeni gelen takımlar {newRating} reytingle başlar, bu yüzden tahminleri daha belirsizdir. Reytingler kadro değişikliklerini hesaba katmaz.",
     teamMeta: (elo, rank, total) => `Elo ${elo}, ${total} takım içinde ${rank}. sırada`,
     scoreTip: (team, score, chance, points) => `${team} ${score} kazanır: ${chance}. Lig puanı ${points}.`,
   },
   en: {
     title: "Sultanlar Ligi Match Predictor",
-    intro: "Pick two teams to simulate their match 100,000 times. Ratings are from the end of the 2025-26 season.",
+    intro: "Pick two teams to simulate their match {nSims} times. Ratings include matches up to {date}.",
     language: "Language",
     chooseMatch: "Choose the match",
     homeTeam: "Home team",
     awayTeam: "Away team",
     swap: "Swap teams",
-    neutral: "Neutral venue, with no home advantage",
+    neutral: "Neutral venue (home advantage is worth +{homeAdvantage} Elo)",
     winProbability: "Win probability",
-    cautionTitle: "Upsets are more likely than this shows.",
-    cautionBody: "When the model gave the home team over 90%, it averaged 97% and they won 95% of those matches. Under 10%, it averaged 3% and they won 8%.",
+    cautionTitle: "Upsets happen more often than this shows.",
+    cautionHigh: "In the {highMatches} past matches where the home team had over {high}, the model expected them to win {highPredicted} of the time. They actually won {highActual}.",
+    cautionLow: "In the {lowMatches} past matches where the home team had under {low}, the model expected them to win {lowPredicted} of the time. They actually won {lowActual}.",
     matchSummary: "Match summary",
-    setLabel: "Home team wins a set",
+    setLabel: team => `${team} wins a set`,
     setNote: "Chance in any single set",
-    fifthLabel: "Match goes to a fifth set",
+    fifthLabel: "Match goes to a tie-break set",
     fifthNote: "Ends 3-2 or 2-3",
     pointsLabel: "Expected league points",
-    pointsNote: "Home, then away",
     scoresTitle: "Chance of each final score",
-    scoresNote: "Scores show home sets first.",
+    scoresNote: "Scores show home sets first. Points are what the winner earns.",
     wins: "wins",
-    score: "Score",
-    chance: "Chance",
-    leaguePoints: "League points",
+    recordLabel: "Track record:",
+    record: "the favourite won {accuracy} of {matches} matches since {firstSeason}.",
+    points: n => `${n} pts`,
+    likely: (team, score, chance) => `Most likely: ${team} ${score} (${chance})`,
+    headToHead: (since, home, homeWins, awayWins, away) => `Head to head since ${since}: ${home} ${homeWins} – ${awayWins} ${away}`,
+    noMeetings: since => `Head to head: no matches on record since ${since}.`,
+    formLabel: n => `Last ${n}:`,
+    formWon: "W",
+    formLost: "L",
+    formWonMatch: (opponent, score) => `Won ${score} against ${opponent}`,
+    formLostMatch: (opponent, score) => `Lost ${score} against ${opponent}`,
     howTitle: "How it works",
-    howBody: "Each team's Elo rating gives an expected match score. That score is converted to a chance of winning each set, then every simulated match is played set by set until a team reaches 3.",
+    howBody: "Each team's Elo rating, after adding +{homeAdvantage} for the home team, gives an expected match score. That score is converted to a chance of winning a single set. The match is then simulated {nSims} times, set by set, until a team reaches {setsToWin}. After every match, ratings move according to how far the result was from what was expected.",
     limitsTitle: "What to keep in mind",
-    limitsBody: "The favourite won 80.5% of 801 past matches. Every set uses the same chance, so momentum and the shorter fifth set aren't modelled. Teams are those from 2025-26, and ratings ignore squad changes since 20 April 2026.",
+    limitsBody: "Every set uses the same chance, so momentum and the shorter tie-break set aren't modelled. Teams are those from {season}. Teams new to the league start at {newRating}, so their predictions are less certain. Ratings ignore squad changes.",
     teamMeta: (elo, rank, total) => `Elo ${elo}, ranked ${rank} of ${total}`,
     scoreTip: (team, score, chance, points) => `${team} wins ${score}: ${chance}. League points ${points}.`,
   },
@@ -487,15 +514,38 @@ try {
   if (localStorage.getItem("lang") === "en") lang = "en";
 } catch {}
 const t = key => TEXT[lang][key];
+const cautionAvailable = Boolean(D.record.high && D.record.low);
+const fill = text => {
+  const values = {
+    season: D.season,
+    date: new Date(`${D.lastMatch}T12:00:00`).toLocaleDateString(lang === "tr" ? "tr-TR" : "en-GB", { day: "numeric", month: "long", year: "numeric" }),
+    nSims: D.nSims.toLocaleString(lang === "tr" ? "tr-TR" : "en-GB"),
+    newRating: D.newTeamRating,
+    homeAdvantage: D.homeAdvantage,
+    setsToWin: TARGET,
+    matches: D.record.matches.toLocaleString(lang === "tr" ? "tr-TR" : "en-GB"),
+    accuracy: pct(D.record.accuracy),
+    firstSeason: D.record.firstSeason,
+    high: pct(D.cautionThreshold),
+    low: pct(1 - D.cautionThreshold),
+    highMatches: cautionAvailable ? D.record.high.matches : "",
+    lowMatches: cautionAvailable ? D.record.low.matches : "",
+    highPredicted: cautionAvailable ? pct(D.record.high.predicted) : "",
+    highActual: cautionAvailable ? pct(D.record.high.actual) : "",
+    lowPredicted: cautionAvailable ? pct(D.record.low.predicted) : "",
+    lowActual: cautionAvailable ? pct(D.record.low.actual) : "",
+  };
+  return text.replace(/\{(\w+)\}/g, (_, key) => values[key]);
+};
 
 const decimal = (x, digits) => {
   const text = x.toFixed(digits);
   return lang === "tr" ? text.replace(".", ",") : text;
 };
-// Turkish puts the percent sign first: %73,1
+// Whole numbers, because an Elo model isn't precise enough for decimals. Turkish puts the sign first: %73
 const pct = x => {
-  const prefix = x < 0.0005 ? "<" : x > 0.9995 ? ">" : "";
-  const value = decimal(prefix === "<" ? 0.1 : prefix === ">" ? 99.9 : x * 100, 1);
+  const prefix = x < 0.005 ? "<" : x > 0.995 ? ">" : "";
+  const value = prefix === "<" ? 1 : prefix === ">" ? 99 : Math.round(x * 100);
   return lang === "tr" ? `${prefix}%${value}` : `${prefix}${value}%`;
 };
 const homeSelect = $("home"), awaySelect = $("away"), neutral = $("neutral"), tip = $("tip");
@@ -506,46 +556,57 @@ TEAMS.forEach(team => {
     select.add(new Option(`${team.name} (${Math.round(team.elo)})`, team.id));
   }
 });
-homeSelect.value = "VAK";
-awaySelect.value = "FEN";
+homeSelect.value = TEAMS[0].id;
+awaySelect.value = TEAMS[1].id;
 let previous = { home: homeSelect.value, away: awaySelect.value };
 
-function showTip(slot) {
-  tip.textContent = slot.dataset.tip;
+function showTip(element) {
+  tip.textContent = element.dataset.tip;
   tip.hidden = false;
-  const box = slot.getBoundingClientRect();
+  const box = element.getBoundingClientRect();
   const left = Math.min(Math.max(8, box.left + box.width / 2 - tip.offsetWidth / 2), window.innerWidth - tip.offsetWidth - 8);
+  const above = box.top - tip.offsetHeight - 6;
   tip.style.left = `${left}px`;
-  tip.style.top = `${Math.max(8, box.top + 8)}px`;
+  // below the form squares, so the note doesn't cover the win chance
+  tip.style.top = `${above >= 8 && !element.matches(".chip") ? above : box.bottom + 6}px`;
 }
 const hideTip = () => { tip.hidden = true; };
+
+function addTip(element, text) {
+  element.dataset.tip = text;
+  element.tabIndex = 0;
+  element.setAttribute("aria-label", text);
+  for (const event of ["mouseenter", "focus", "click"]) element.addEventListener(event, () => showTip(element));
+  for (const event of ["mouseleave", "blur"]) element.addEventListener(event, hideTip);
+}
 
 function renderChart(result, home, away) {
   const chart = $("chart"), labels = $("labels");
   chart.replaceChildren();
   labels.replaceChildren();
-  const top = Math.max(...result.scorelines) / 0.86;   // leaves room for the value above the tallest bar
+  const top = Math.max(...result.scorelines);
   SCORELINES.forEach((line, i) => {
-    const side = line.home === 3 ? "home" : "away";
-    const winner = line.home === 3 ? home : away;
+    const side = isHomeWin(line) ? "home" : "away";
+    const winner = isHomeWin(line) ? home : away;
     const slot = document.createElement("div");
     slot.className = "slot";
-    slot.tabIndex = 0;
-    slot.dataset.tip = t("scoreTip")(winner.name, `${line.home}-${line.away}`, pct(result.scorelines[i]), `${line.points[0]}-${line.points[1]}`);
-    slot.setAttribute("aria-label", slot.dataset.tip);
+    addTip(slot, t("scoreTip")(winner.name, `${line.home}-${line.away}`, pct(result.scorelines[i]), `${line.points[0]}-${line.points[1]}`));
     const value = document.createElement("span");
     value.className = "slot-value";
     value.textContent = pct(result.scorelines[i]);
+    const share = result.scorelines[i] / top;
+    const gap = document.createElement("div");
+    gap.className = "gap";
+    gap.style.flexGrow = 1 - share;
     const bar = document.createElement("div");
     bar.className = `bar ${side}`;
-    bar.style.height = `${(result.scorelines[i] / top) * 100}%`;
-    slot.append(value, bar);
-    for (const [event, handler] of [["mouseenter", () => showTip(slot)], ["focus", () => showTip(slot)], ["mouseleave", hideTip], ["blur", hideTip]]) {
-      slot.addEventListener(event, handler);
-    }
+    bar.style.flexGrow = share;
+    slot.append(gap, value, bar);
     const label = document.createElement("span");
-    label.textContent = `${line.home}-${line.away}`;
-    if (i === 3) {
+    const points = document.createElement("small");
+    points.textContent = t("points")(Math.max(...line.points));
+    label.append(`${line.home}-${line.away}`, points);
+    if (i === SCORELINES.findIndex(l => !isHomeWin(l))) {
       const net = document.createElement("div");
       net.className = "net";
       chart.append(net);
@@ -556,27 +617,43 @@ function renderChart(result, home, away) {
   });
 }
 
-function renderTable(result) {
-  $("table").replaceChildren(...SCORELINES.map((line, i) => {
-    const row = document.createElement("tr");
-    for (const [text, cls] of [[`${line.home}-${line.away}`, ""], [pct(result.scorelines[i]), "num"], [`${line.points[0]}-${line.points[1]}`, "num"]]) {
-      const cell = document.createElement("td");
-      cell.textContent = text;
-      cell.className = cls;
-      row.append(cell);
-    }
-    return row;
+function renderForm(element, team) {
+  const results = D.form[team.id];
+  const label = document.createElement("span");
+  label.className = "form-label";
+  label.textContent = t("formLabel")(results.length);
+  element.replaceChildren(label, ...results.map(match => {
+    const chip = document.createElement("span");
+    chip.className = match.won ? "chip won" : "chip lost";
+    chip.textContent = t(match.won ? "formWon" : "formLost");
+    addTip(chip, t(match.won ? "formWonMatch" : "formLostMatch")(match.opponent, match.score));
+    return chip;
   }));
+}
+
+function headToHeadText(home, away) {
+  const record = D.headToHead[[home.id, away.id].sort().join("-")];
+  if (!record) return t("noMeetings")(D.historyStart);
+  return t("headToHead")(D.historyStart, home.name, record[home.id], record[away.id], away.name);
+}
+
+function mostLikely(result, home, away) {
+  const i = result.scorelines.indexOf(Math.max(...result.scorelines));
+  const line = SCORELINES[i];
+  const winner = isHomeWin(line) ? home : away;
+  return t("likely")(winner.name, `${Math.max(line.home, line.away)}-${Math.min(line.home, line.away)}`, pct(result.scorelines[i]));
 }
 
 function render() {
   const home = teamById(homeSelect.value), away = teamById(awaySelect.value);
-  const advantage = neutral.checked ? 0 : H;
+  const advantage = neutral.checked ? 0 : D.homeAdvantage;
   const result = simulateMatch(home, away, advantage);
   const awayWin = 1 - result.homeWin;
 
   $("home-name").textContent = home.name;
   $("away-name").textContent = away.name;
+  $("home-full").textContent = home.fullName;
+  $("away-full").textContent = away.fullName;
   $("side-home").textContent = home.name;
   $("side-away").textContent = away.name;
   $("home-win").textContent = pct(result.homeWin);
@@ -590,18 +667,25 @@ function render() {
   splitAway.style.flex = `${awayWin} 1 0`;
   splitHome.style.display = result.homeWin < 0.0005 ? "none" : "";
   splitAway.style.display = awayWin < 0.0005 ? "none" : "";
-  splitHome.textContent = result.homeWin >= 0.12 ? pct(result.homeWin) : "";
-  splitAway.textContent = awayWin >= 0.12 ? pct(awayWin) : "";
   $("split").setAttribute("aria-label", `${home.name} ${pct(result.homeWin)}, ${away.name} ${pct(awayWin)}`);
 
+  renderForm($("home-form"), home);
+  renderForm($("away-form"), away);
+  $("likely").textContent = mostLikely(result, home, away);
+  $("h2h").textContent = headToHeadText(home, away);
+
+  $("set-label").textContent = t("setLabel")(home.name);
   $("set-prob").textContent = pct(result.pSet);
-  $("five-sets").textContent = pct(result.scorelines[2] + result.scorelines[3]);
+  $("five-sets").textContent = pct(SCORELINES.reduce((sum, line, i) => sum + (line.home + line.away === 2 * TARGET - 1 ? result.scorelines[i] : 0), 0));
   const expectedPoints = side => SCORELINES.reduce((sum, line, i) => sum + line.points[side] * result.scorelines[i], 0);
-  $("league-pts").textContent = `${decimal(expectedPoints(0), 2)} – ${decimal(expectedPoints(1), 2)}`;
-  $("caution").hidden = result.homeWin <= 0.9 && result.homeWin >= 0.1;
+  $("home-pts").textContent = decimal(expectedPoints(0), 1);
+  $("away-pts").textContent = decimal(expectedPoints(1), 1);
+  $("home-pts-team").textContent = home.name;
+  $("away-pts-team").textContent = away.name;
+  $("caution").hidden = !cautionAvailable || (result.homeWin <= D.cautionThreshold && result.homeWin >= 1 - D.cautionThreshold);
+  $("caution-body").textContent = fill(t(result.homeWin > D.cautionThreshold ? "cautionHigh" : "cautionLow"));
 
   renderChart(result, home, away);
-  renderTable(result);
   previous = { home: home.id, away: away.id };
 }
 
@@ -623,8 +707,9 @@ neutral.addEventListener("change", render);
 function applyLanguage() {
   document.documentElement.lang = lang;
   document.title = t("title");
-  document.querySelectorAll("[data-i18n]").forEach(el => { el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll("[data-i18n]").forEach(el => { el.textContent = fill(t(el.dataset.i18n)); });
   document.querySelectorAll("[data-i18n-aria]").forEach(el => el.setAttribute("aria-label", t(el.dataset.i18nAria)));
+  document.querySelectorAll("[data-i18n-title]").forEach(el => { el.title = t(el.dataset.i18nTitle); });
   document.querySelectorAll("[data-lang]").forEach(button => button.setAttribute("aria-pressed", String(button.dataset.lang === lang)));
   render();
 }
