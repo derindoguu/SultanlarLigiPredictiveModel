@@ -157,7 +157,7 @@ window.DASHBOARD_DATA = {
     "lastSeason": "2026-27",
     "high": {
       "matches": 220,
-      "predicted": 0.9716991333364535,
+      "predicted": 0.9716991333364534,
       "actual": 0.9545454545454546
     },
     "low": {
