@@ -47,3 +47,10 @@ match_id,season,date,phase,round,home_id,away_id,home_name (source),away_name (s
 2026-27-R047,2026-27,2026-11-04,regular,Week 7,MAN,GS,MANİSA BÜYÜKŞEHİR BELEDİYE SPOR,GALATASARAY DAIKIN,0,3,29,31,22,25,25,27,,,,,76,83,GS,0,3,Y,,https://tvf.org.tr/lig/sultanlar-ligi?sekme=fikstur
 2026-27-R048,2026-27,2026-11-05,regular,Week 7,ILB,NIL,İLBANK,NİLÜFER BELEDİYESPOR EKER,0,3,17,25,22,25,13,25,,,,,52,75,NIL,0,3,Y,,https://tvf.org.tr/lig/sultanlar-ligi?sekme=fikstur
 2026-27-R049,2026-27,2026-11-05,regular,Week 7,FEN,AFY,FENERBAHÇE MEDICANA,SİNNADA HOTELS AFYON BELEDİYE YÜNTAŞ,3,0,25,10,25,15,25,18,,,,,75,43,FEN,3,0,Y,,https://tvf.org.tr/lig/sultanlar-ligi?sekme=fikstur
+2026-27-R050,2026-27,2026-11-08,regular,Week 8,AFY,MAN,SİNNADA HOTELS AFYON BELEDİYE YÜNTAŞ,MANİSA BÜYÜKŞEHİR BELEDİYE SPOR,3,2,29,27,21,25,25,20,20.0,25.0,15.0,13.0,110,110,AFY,2,1,Y,,https://tvf.org.tr/lig/sultanlar-ligi?sekme=fikstur
+2026-27-R051,2026-27,2026-11-08,regular,Week 8,ZER,KUZ,ZEREN SPOR,KUZEYBORU,0,3,24,26,24,26,23,25,,,,,71,77,KUZ,0,3,Y,,https://tvf.org.tr/lig/sultanlar-ligi?sekme=fikstur
+2026-27-R052,2026-27,2026-11-08,regular,Week 8,NIL,VAK,NİLÜFER BELEDİYESPOR EKER,VAKIFBANK,0,3,18,25,22,25,14,25,,,,,54,75,VAK,0,3,Y,,https://tvf.org.tr/lig/sultanlar-ligi?sekme=fikstur
+2026-27-R053,2026-27,2026-11-08,regular,Week 8,ECZ,GOZ,ECZACIBAŞI PERON İSTANBUL,GÖZTEPE YUPPO,3,0,25,20,25,18,25,18,,,,,75,56,ECZ,3,0,Y,,https://tvf.org.tr/lig/sultanlar-ligi?sekme=fikstur
+2026-27-R054,2026-27,2026-11-08,regular,Week 8,GS,BJK,GALATASARAY DAIKIN,BEŞİKTAŞ,3,1,25,20,17,25,25,17,25.0,18.0,,,92,80,GS,3,0,Y,,https://tvf.org.tr/lig/sultanlar-ligi?sekme=fikstur
+2026-27-R055,2026-27,2026-11-08,regular,Week 8,THY,FEN,TÜRK HAVA YOLLARI,FENERBAHÇE MEDICANA,0,3,18,25,17,25,20,25,,,,,55,75,FEN,0,3,Y,,https://tvf.org.tr/lig/sultanlar-ligi?sekme=fikstur
+2026-27-R056,2026-27,2026-11-08,regular,Week 8,ARS,ILB,ARAS KARGO,İLBANK,3,0,25,22,25,22,25,18,,,,,75,62,ARS,3,0,Y,,https://tvf.org.tr/lig/sultanlar-ligi?sekme=fikstur

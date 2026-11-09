@@ -1,90 +1,90 @@
 window.DASHBOARD_DATA = {
   "season": "2026-27",
-  "lastMatch": "2026-11-05",
+  "lastMatch": "2026-11-08",
   "teams": [
     {
       "id": "VAK",
       "name": "VakıfBank",
       "fullName": "VAKIFBANK",
-      "elo": 1944.8
+      "elo": 1952.7
     },
     {
       "id": "FEN",
       "name": "Fenerbahçe",
       "fullName": "FENERBAHÇE MEDICANA",
-      "elo": 1894.1
+      "elo": 1908.5
     },
     {
       "id": "ECZ",
       "name": "Eczacıbaşı",
       "fullName": "ECZACIBAŞI PERON İSTANBUL",
-      "elo": 1774.0
+      "elo": 1796.9
     },
     {
       "id": "GS",
       "name": "Galatasaray",
       "fullName": "GALATASARAY DAIKIN",
-      "elo": 1575.3
+      "elo": 1583.2
     },
     {
       "id": "GOZ",
       "name": "Göztepe",
       "fullName": "GÖZTEPE YUPPO",
-      "elo": 1567.7
-    },
-    {
-      "id": "THY",
-      "name": "Türk Hava Yolları",
-      "fullName": "TÜRK HAVA YOLLARI",
-      "elo": 1541.2
-    },
-    {
-      "id": "ZER",
-      "name": "Zeren Spor",
-      "fullName": "ZEREN SPOR",
-      "elo": 1509.0
-    },
-    {
-      "id": "ARS",
-      "name": "Aras Kargo",
-      "fullName": "ARAS KARGO",
-      "elo": 1489.6
-    },
-    {
-      "id": "NIL",
-      "name": "Nilüfer Belediyespor",
-      "fullName": "NİLÜFER BELEDİYESPOR EKER",
-      "elo": 1473.8
+      "elo": 1544.7
     },
     {
       "id": "KUZ",
       "name": "Kuzeyboru",
       "fullName": "KUZEYBORU",
-      "elo": 1468.4
+      "elo": 1533.7
+    },
+    {
+      "id": "THY",
+      "name": "Türk Hava Yolları",
+      "fullName": "TÜRK HAVA YOLLARI",
+      "elo": 1526.7
+    },
+    {
+      "id": "ARS",
+      "name": "Aras Kargo",
+      "fullName": "ARAS KARGO",
+      "elo": 1514.4
+    },
+    {
+      "id": "NIL",
+      "name": "Nilüfer Belediyespor",
+      "fullName": "NİLÜFER BELEDİYESPOR EKER",
+      "elo": 1466.0
+    },
+    {
+      "id": "ZER",
+      "name": "Zeren Spor",
+      "fullName": "ZEREN SPOR",
+      "elo": 1443.8
     },
     {
       "id": "BJK",
       "name": "Beşiktaş",
       "fullName": "BEŞİKTAŞ",
-      "elo": 1428.6
-    },
-    {
-      "id": "ILB",
-      "name": "İlbank",
-      "fullName": "İLBANK",
-      "elo": 1299.4
-    },
-    {
-      "id": "MAN",
-      "name": "Manisa Büyükşehir Belediyespor",
-      "fullName": "MANİSA BÜYÜKŞEHİR BELEDİYE SPOR",
-      "elo": 1288.9
+      "elo": 1420.8
     },
     {
       "id": "AFY",
       "name": "Afyon Belediye Yüntaş",
       "fullName": "SİNNADA HOTELS AFYON BELEDİYE YÜNTAŞ",
-      "elo": 1287.0
+      "elo": 1294.3
+    },
+    {
+      "id": "MAN",
+      "name": "Manisa Büyükşehir Belediyespor",
+      "fullName": "MANİSA BÜYÜKŞEHİR BELEDİYE SPOR",
+      "elo": 1281.6
+    },
+    {
+      "id": "ILB",
+      "name": "İlbank",
+      "fullName": "İLBANK",
+      "elo": 1274.7
     }
   ],
   "homeAdvantage": 25,
@@ -151,28 +151,23 @@ window.DASHBOARD_DATA = {
   "seed": 42,
   "cautionThreshold": 0.9,
   "record": {
-    "matches": 849,
-    "accuracy": 0.8021201413427562,
+    "matches": 856,
+    "accuracy": 0.802570093457944,
     "firstSeason": "2022-23",
     "lastSeason": "2026-27",
     "high": {
       "matches": 220,
-      "predicted": 0.9716991333364534,
+      "predicted": 0.9716991333364535,
       "actual": 0.9545454545454546
     },
     "low": {
-      "matches": 189,
-      "predicted": 0.027863511187432164,
-      "actual": 0.08465608465608465
+      "matches": 191,
+      "predicted": 0.027843626196901245,
+      "actual": 0.08376963350785341
     }
   },
   "form": {
     "VAK": [
-      {
-        "won": true,
-        "score": "3-0",
-        "opponent": "Zeren Spor"
-      },
       {
         "won": true,
         "score": "3-2",
@@ -192,14 +187,14 @@ window.DASHBOARD_DATA = {
         "won": true,
         "score": "3-0",
         "opponent": "Türk Hava Yolları"
+      },
+      {
+        "won": true,
+        "score": "3-0",
+        "opponent": "Nilüfer Belediyespor"
       }
     ],
     "FEN": [
-      {
-        "won": true,
-        "score": "3-2",
-        "opponent": "Beşiktaş"
-      },
       {
         "won": true,
         "score": "3-0",
@@ -219,14 +214,14 @@ window.DASHBOARD_DATA = {
         "won": true,
         "score": "3-0",
         "opponent": "Afyon Belediye Yüntaş"
-      }
-    ],
-    "ECZ": [
+      },
       {
         "won": true,
         "score": "3-0",
-        "opponent": "İlbank"
-      },
+        "opponent": "Türk Hava Yolları"
+      }
+    ],
+    "ECZ": [
       {
         "won": false,
         "score": "2-3",
@@ -246,14 +241,14 @@ window.DASHBOARD_DATA = {
         "won": true,
         "score": "3-0",
         "opponent": "Beşiktaş"
+      },
+      {
+        "won": true,
+        "score": "3-0",
+        "opponent": "Göztepe"
       }
     ],
     "GS": [
-      {
-        "won": false,
-        "score": "2-3",
-        "opponent": "Aras Kargo"
-      },
       {
         "won": true,
         "score": "3-1",
@@ -273,14 +268,14 @@ window.DASHBOARD_DATA = {
         "won": true,
         "score": "3-0",
         "opponent": "Manisa Büyükşehir Belediyespor"
+      },
+      {
+        "won": true,
+        "score": "3-1",
+        "opponent": "Beşiktaş"
       }
     ],
     "GOZ": [
-      {
-        "won": false,
-        "score": "0-3",
-        "opponent": "VakıfBank"
-      },
       {
         "won": true,
         "score": "3-0",
@@ -300,14 +295,41 @@ window.DASHBOARD_DATA = {
         "won": true,
         "score": "3-2",
         "opponent": "Zeren Spor"
+      },
+      {
+        "won": false,
+        "score": "0-3",
+        "opponent": "Eczacıbaşı"
       }
     ],
-    "THY": [
+    "KUZ": [
+      {
+        "won": true,
+        "score": "3-2",
+        "opponent": "Beşiktaş"
+      },
+      {
+        "won": true,
+        "score": "3-2",
+        "opponent": "Nilüfer Belediyespor"
+      },
       {
         "won": false,
         "score": "1-3",
-        "opponent": "Kuzeyboru"
+        "opponent": "Göztepe"
       },
+      {
+        "won": true,
+        "score": "3-2",
+        "opponent": "Aras Kargo"
+      },
+      {
+        "won": true,
+        "score": "3-0",
+        "opponent": "Zeren Spor"
+      }
+    ],
+    "THY": [
       {
         "won": true,
         "score": "3-1",
@@ -316,6 +338,65 @@ window.DASHBOARD_DATA = {
       {
         "won": true,
         "score": "3-1",
+        "opponent": "Aras Kargo"
+      },
+      {
+        "won": true,
+        "score": "3-0",
+        "opponent": "İlbank"
+      },
+      {
+        "won": false,
+        "score": "0-3",
+        "opponent": "VakıfBank"
+      },
+      {
+        "won": false,
+        "score": "0-3",
+        "opponent": "Fenerbahçe"
+      }
+    ],
+    "ARS": [
+      {
+        "won": true,
+        "score": "3-1",
+        "opponent": "Afyon Belediye Yüntaş"
+      },
+      {
+        "won": false,
+        "score": "1-3",
+        "opponent": "Türk Hava Yolları"
+      },
+      {
+        "won": true,
+        "score": "3-2",
+        "opponent": "Nilüfer Belediyespor"
+      },
+      {
+        "won": false,
+        "score": "2-3",
+        "opponent": "Kuzeyboru"
+      },
+      {
+        "won": true,
+        "score": "3-0",
+        "opponent": "İlbank"
+      }
+    ],
+    "NIL": [
+      {
+        "won": false,
+        "score": "1-3",
+        "opponent": "Türk Hava Yolları"
+      },
+      {
+        "won": false,
+        "score": "2-3",
+        "opponent": "Kuzeyboru"
+      },
+      {
+        "won": false,
+        "score": "2-3",
         "opponent": "Aras Kargo"
       },
       {
@@ -333,11 +414,6 @@ window.DASHBOARD_DATA = {
       {
         "won": false,
         "score": "0-3",
-        "opponent": "VakıfBank"
-      },
-      {
-        "won": false,
-        "score": "0-3",
         "opponent": "Fenerbahçe"
       },
       {
@@ -354,96 +430,15 @@ window.DASHBOARD_DATA = {
         "won": false,
         "score": "2-3",
         "opponent": "Göztepe"
-      }
-    ],
-    "ARS": [
-      {
-        "won": true,
-        "score": "3-2",
-        "opponent": "Galatasaray"
-      },
-      {
-        "won": true,
-        "score": "3-1",
-        "opponent": "Afyon Belediye Yüntaş"
       },
       {
         "won": false,
-        "score": "1-3",
-        "opponent": "Türk Hava Yolları"
-      },
-      {
-        "won": true,
-        "score": "3-2",
-        "opponent": "Nilüfer Belediyespor"
-      },
-      {
-        "won": false,
-        "score": "2-3",
+        "score": "0-3",
         "opponent": "Kuzeyboru"
-      }
-    ],
-    "NIL": [
-      {
-        "won": true,
-        "score": "3-0",
-        "opponent": "Afyon Belediye Yüntaş"
-      },
-      {
-        "won": false,
-        "score": "1-3",
-        "opponent": "Türk Hava Yolları"
-      },
-      {
-        "won": false,
-        "score": "2-3",
-        "opponent": "Kuzeyboru"
-      },
-      {
-        "won": false,
-        "score": "2-3",
-        "opponent": "Aras Kargo"
-      },
-      {
-        "won": true,
-        "score": "3-0",
-        "opponent": "İlbank"
-      }
-    ],
-    "KUZ": [
-      {
-        "won": true,
-        "score": "3-1",
-        "opponent": "Türk Hava Yolları"
-      },
-      {
-        "won": true,
-        "score": "3-2",
-        "opponent": "Beşiktaş"
-      },
-      {
-        "won": true,
-        "score": "3-2",
-        "opponent": "Nilüfer Belediyespor"
-      },
-      {
-        "won": false,
-        "score": "1-3",
-        "opponent": "Göztepe"
-      },
-      {
-        "won": true,
-        "score": "3-2",
-        "opponent": "Aras Kargo"
       }
     ],
     "BJK": [
       {
-        "won": true,
-        "score": "3-1",
-        "opponent": "Manisa Büyükşehir Belediyespor"
-      },
-      {
         "won": false,
         "score": "2-3",
         "opponent": "Kuzeyboru"
@@ -462,70 +457,16 @@ window.DASHBOARD_DATA = {
         "won": false,
         "score": "0-3",
         "opponent": "Eczacıbaşı"
-      }
-    ],
-    "ILB": [
-      {
-        "won": false,
-        "score": "0-3",
-        "opponent": "Eczacıbaşı"
       },
       {
         "won": false,
         "score": "1-3",
-        "opponent": "Galatasaray"
-      },
-      {
-        "won": true,
-        "score": "3-1",
-        "opponent": "Afyon Belediye Yüntaş"
-      },
-      {
-        "won": false,
-        "score": "0-3",
-        "opponent": "Türk Hava Yolları"
-      },
-      {
-        "won": false,
-        "score": "0-3",
-        "opponent": "Nilüfer Belediyespor"
-      }
-    ],
-    "MAN": [
-      {
-        "won": false,
-        "score": "1-3",
-        "opponent": "Beşiktaş"
-      },
-      {
-        "won": false,
-        "score": "0-3",
-        "opponent": "Göztepe"
-      },
-      {
-        "won": false,
-        "score": "2-3",
-        "opponent": "Zeren Spor"
-      },
-      {
-        "won": false,
-        "score": "0-3",
-        "opponent": "Eczacıbaşı"
-      },
-      {
-        "won": false,
-        "score": "0-3",
         "opponent": "Galatasaray"
       }
     ],
     "AFY": [
       {
         "won": false,
-        "score": "0-3",
-        "opponent": "Nilüfer Belediyespor"
-      },
-      {
-        "won": false,
         "score": "1-3",
         "opponent": "Aras Kargo"
       },
@@ -543,6 +484,65 @@ window.DASHBOARD_DATA = {
         "won": false,
         "score": "0-3",
         "opponent": "Fenerbahçe"
+      },
+      {
+        "won": true,
+        "score": "3-2",
+        "opponent": "Manisa Büyükşehir Belediyespor"
+      }
+    ],
+    "MAN": [
+      {
+        "won": false,
+        "score": "0-3",
+        "opponent": "Göztepe"
+      },
+      {
+        "won": false,
+        "score": "2-3",
+        "opponent": "Zeren Spor"
+      },
+      {
+        "won": false,
+        "score": "0-3",
+        "opponent": "Eczacıbaşı"
+      },
+      {
+        "won": false,
+        "score": "0-3",
+        "opponent": "Galatasaray"
+      },
+      {
+        "won": false,
+        "score": "2-3",
+        "opponent": "Afyon Belediye Yüntaş"
+      }
+    ],
+    "ILB": [
+      {
+        "won": false,
+        "score": "1-3",
+        "opponent": "Galatasaray"
+      },
+      {
+        "won": true,
+        "score": "3-1",
+        "opponent": "Afyon Belediye Yüntaş"
+      },
+      {
+        "won": false,
+        "score": "0-3",
+        "opponent": "Türk Hava Yolları"
+      },
+      {
+        "won": false,
+        "score": "0-3",
+        "opponent": "Nilüfer Belediyespor"
+      },
+      {
+        "won": false,
+        "score": "0-3",
+        "opponent": "Aras Kargo"
       }
     ]
   },
@@ -562,6 +562,10 @@ window.DASHBOARD_DATA = {
     "AFY-KUZ": {
       "AFY": 1,
       "KUZ": 0
+    },
+    "AFY-MAN": {
+      "AFY": 1,
+      "MAN": 0
     },
     "AFY-NIL": {
       "AFY": 0,
@@ -596,7 +600,7 @@ window.DASHBOARD_DATA = {
       "GS": 6
     },
     "ARS-ILB": {
-      "ARS": 2,
+      "ARS": 3,
       "ILB": 0
     },
     "ARS-KUZ": {
@@ -633,7 +637,7 @@ window.DASHBOARD_DATA = {
     },
     "BJK-GS": {
       "BJK": 0,
-      "GS": 6
+      "GS": 7
     },
     "BJK-ILB": {
       "BJK": 2,
@@ -668,7 +672,7 @@ window.DASHBOARD_DATA = {
       "FEN": 14
     },
     "ECZ-GOZ": {
-      "ECZ": 2,
+      "ECZ": 3,
       "GOZ": 0
     },
     "ECZ-GS": {
@@ -728,7 +732,7 @@ window.DASHBOARD_DATA = {
       "NIL": 0
     },
     "FEN-THY": {
-      "FEN": 8,
+      "FEN": 9,
       "THY": 4
     },
     "FEN-VAK": {
@@ -836,7 +840,7 @@ window.DASHBOARD_DATA = {
       "VAK": 9
     },
     "KUZ-ZER": {
-      "KUZ": 1,
+      "KUZ": 2,
       "ZER": 5
     },
     "MAN-ZER": {
@@ -849,7 +853,7 @@ window.DASHBOARD_DATA = {
     },
     "NIL-VAK": {
       "NIL": 0,
-      "VAK": 10
+      "VAK": 11
     },
     "NIL-ZER": {
       "NIL": 0,
